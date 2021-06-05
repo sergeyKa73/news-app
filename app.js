@@ -61,8 +61,8 @@ function customHttp() {
     const apiUrl = 'https://news-api-v2.herokuapp.com';
 
     return {
-      topHeadlines(country = 'us', cb) {
-        http.get(`${apiUrl}/top-headlines?country=${country}&category=general&apiKey=${apiKey}`, cb); // выбор категории реализовать
+      topHeadlines(country = 'us', category = 'general', cb) {
+        http.get(`${apiUrl}/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}`, cb); // выбор категории реализовать
       },
       everything(query, cb) {
         http.get(`${apiUrl}/everything?q==${query}&apiKey=${apiKey}`, cb );
@@ -74,6 +74,7 @@ function customHttp() {
   
   const form = document.forms['newsControls'];
   const countrySelect = form.elements['country'];
+  const categorySelect = form.elements['category']
   const searchInput = form.elements['search'];
 
   form.addEventListener('submit', (e) => {
@@ -92,10 +93,11 @@ function customHttp() {
   function loadNews() {
     showLoader();
     const country = countrySelect.value;
+    const category = categorySelect.value;
     const searchText = searchInput.value;
 
     if(!searchText) {
-      newsService.topHeadlines(country , onGetResponse);
+      newsService.topHeadlines(country ,category,  onGetResponse);
     } else {
       newsService.everything(searchText , onGetResponse);
     }
@@ -110,7 +112,8 @@ function customHttp() {
       return;
     }
     if (!res.articles.length) {
-      // show empty massage
+      showAlert('There are no results');
+      return;
     }
 
     renderNews(res.articles);    
@@ -149,7 +152,7 @@ function newsTemplate({urlToImage, title, url, description}) {
         <div class="col s12">
           <div class="card">
             <div class="card-image">
-              <img src="${urlToImage}">
+              <img src="${urlToImage || './images/news.jpg'}" alt=""}">
               <span class="card-title">${title || ''}</span>
             </div>
             <div class="card-content">
